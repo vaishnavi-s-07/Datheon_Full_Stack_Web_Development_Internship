@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Task Manager</title>
+<style>
+body {
+    font-family: Arial, sans-serif;
+    background: #f0f4ff;
+    text-align: center;
+    padding: 30px 15px;
+}
+.container {
+    max-width: 450px;
+    margin: auto;
+    background: white;
+    padding: 25px;
+    border-radius: 15px;
+}
+h1 { color: #344fc4; }
+input, button {
+    padding: 10px;
+    margin: 5px;
+}
+button {
+    background: #344fc4;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+li {
+    padding: 10px;
+    margin: 8px;
+    background: #eef0ff;
+    text-align: left;
+    overflow-wrap: anywhere;
+}
+li button { float: right; }
+</style>
+</head>
+<body>
+<div class="container">
+<h1>My Task Manager</h1>
+<p>Organize your daily tasks!</p>
+<input id="taskInput" placeholder="Enter a task">
+<button onclick="addTask()">Add Task</button>
+<ul id="taskList"></ul>
+</div>
+
+<script>
+let tasks = JSON.parse(localStorage.getItem("tasks") || "[]");
+
+function displayTasks() {
+    document.getElementById("taskList").innerHTML = "";
+    tasks.forEach((task, index) => {
+        const li = document.createElement("li");
+        li.appendChild(document.createTextNode(task));
+
+        const btn = document.createElement("button");
+        btn.textContent = "Delete";
+        btn.onclick = () => {
+            tasks.splice(index, 1);
+            saveTasks();
+        };
+
+        li.appendChild(btn);
+        document.getElementById("taskList").appendChild(li);
+    });
+}
+
+function addTask() {
+    const input = document.getElementById("taskInput");
+    const value = input.value.trim();
+
+    if (value === "") {
+        alert("Please enter a task!");
+        return;
+    }
+
+    tasks.push(value);
+    input.value = "";
+    saveTasks();
+}
+
+function saveTasks() {
+    localStorage.setItem("tasks", JSON.stringify(tasks));
+    displayTasks();
+}
+
+displayTasks();
+</script>
+</body>
+  </html>
