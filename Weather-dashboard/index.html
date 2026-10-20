@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Weather Dashboard</title>
+<style>
+body {
+    font-family: Arial, sans-serif;
+    background: linear-gradient(135deg, #74ebd5, #9face6);
+    text-align: center;
+    padding: 30px 15px;
+    min-height: 100vh;
+}
+.container {
+    max-width: 450px;
+    margin: auto;
+    background: white;
+    padding: 25px;
+    border-radius: 18px;
+}
+input, button {
+    padding: 12px;
+    margin: 5px;
+    border-radius: 6px;
+}
+button {
+    background: #4267b2;
+    color: white;
+    border: none;
+}
+#result { margin-top: 20px; }
+</style>
+</head>
+<body>
+<div class="container">
+<h1>🌦️ Weather Dashboard</h1>
+<p>Check the current weather of a city.</p>
+<input id="city" placeholder="Enter city name">
+<button onclick="getWeather()">Search</button>
+<div id="result"></div>
+</div>
+
+<script>
+async function getWeather() {
+    const city = document.getElementById("city").value.trim();
+    const result = document.getElementById("result");
+
+    if (!city) {
+        result.textContent = "Please enter a city name.";
+        return;
+    }
+
+    result.textContent = "Loading weather...";
+
+    try {
+        const geoResponse = await fetch(
+            `https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(city)}&count=1&language=en&format=json`
+        );
+        const geoData = await geoResponse.json();
+
+        if (!geoData.results || geoData.results.length === 0) {
+            result.textContent = "City not found. Try another city.";
+            return;
+        }
+
+        const place = geoData.results[0];
+        const weatherResponse = await fetch(
+            `https://api.open-meteo.com/v1/forecast?latitude=${place.latitude}&longitude=${place.longitude}&current=temperature_2m,relative_humidity_2m,wind_speed_10m`
+        );
+        const weatherData = await weatherResponse.json();
+        const current = weatherData.current;
+
+        result.innerHTML = `
+            <h2>${place.name}, ${place.country || ""}</h2>
+            <h1>🌡️ ${current.temperature_2m}°C</h1>
+            <p>💧 Humidity: ${current.relative_humidity_2m}%</p>
+            <p>💨 Wind Speed: ${current.wind_speed_10m} km/h</p>
+        `;
+    } catch (error) {
+        result.textContent = "Unable to load weather. Please try again.";
+    }
+}
+</script>
+</body>
+  </html>
